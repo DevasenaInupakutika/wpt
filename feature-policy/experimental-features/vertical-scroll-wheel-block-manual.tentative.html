@@ -1,0 +1,144 @@
+<!doctype html>
+<title>vertical-scroll test for 'mousewheel'</title>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<script src="/feature-policy/experimental-features/resources/common.js"></script>
+<script src="/feature-policy/experimental-features/resources/vertical-scroll.js"></script>
+<style>
+html, body {
+  height: 100%;
+  width: 100%;
+}
+
+iframe {
+  width: 90%;
+  height: 90%;
+  margin: 0;
+  padding: 0;
+}
+
+.spacer {
+  width: 100%;
+  height: 100%;
+  margin: 100%;
+}
+
+</style>
+<iframe></iframe>
+<br/>
+<p>Spacers below to make page scrollable</p>
+<br/>
+<div class="spacer"></div>
+<div class="spacer"></div>
+<p> EOF </p>
+<script>
+  "use strict";
+
+  let url = url_base + "vertical-scroll-wheel-block.html";
+  function iframeElement() {
+    return document.querySelector("iframe");
+  }
+
+  let scroll_event_count = 0;
+  let scroll_event_delay = 30;
+
+  function onScroll(e) {
+    scroll_event_count++;
+  }
+
+  function waitInTest(testInstance) {
+    return new Promise((resolve) => {
+      testInstance.step_timeout(resolve, scroll_event_delay);
+    });
+  }
+
+  window.addEventListener("scroll", onScroll);
+
+  // Wait for the helper scripts to load.
+  promise_test(async() => {
+    if (window.input_api_ready)
+      return Promise.resolve();
+    await new Promise((r) => {
+      window.resolve_on_input_api_ready = r;
+    });
+  }, "Make sure input injection API is ready.");
+  /*
+  // Sanity-check: Test API for scrolling along y-axis works as expected.
+  promise_test(async(testInstance) => {
+    window.scrollTo(0, 0);
+    let count = scroll_event_count;
+    await inject_input("down");
+    await waitInTest(testInstance);
+    assert_greater_than(
+      scroll_event_count,
+      count,
+      "No 'scroll' was dispatched for vertical wheel event.");
+  }, "Normally, 'scroll' evnet is dispatched in response to " +
+     "vertical mouse event.");
+
+  // Sanity-check: Test API for scrolling along x-axis works as expected.
+  promise_test(async(testInstance) => {
+    window.scrollTo(0, 0);
+    let count = scroll_event_count;
+    await inject_input("right");
+    await waitInTest(testInstance);
+    assert_greater_than(
+      scroll_event_count,
+      count,
+      "No 'scroll' was dispatched for horizontal wheel event.");
+  }, "Normally, 'scroll' event is dispatched in response to " +
+     "horizontal mouse event.");
+
+  // Test that when 'vertical-scroll' is enabled, vertical scorll can be
+  // blocked by canceling 'wheel' event.
+  promise_test(async(testInstance) => {
+    setFeatureState(iframeElement(), "vertical-scroll", "*");
+    await loadUrlInIframe(iframeElement(), url);
+
+    window.scrollTo(0, 0);
+    let count = scroll_event_count;
+    await inject_input("down");
+    await waitInTest(testInstance);
+    assert_equals(
+      scroll_event_count,
+      count,
+      "'scroll' was dispatched for blocked vertical wheel event.");
+  }, "When 'vertical-scroll' is enabled canceling vertical 'wheel' " +
+     "blocks vertical scrolling.");
+
+  // Test that when 'vertical-scroll' is disabled, vertical scorll cannot
+  // be blocked by canceling 'wheel' event.
+  promise_test(async(testInstance) => {
+    setFeatureState(iframeElement(), "vertical-scroll", "'none'");
+    await loadUrlInIframe(iframeElement(), url);
+
+    window.scrollTo(0, 0);
+    let count = scroll_event_count;
+    await inject_input("down");
+    await waitInTest(testInstance);
+    assert_greater_than(
+      scroll_event_count,
+      count,
+      "No 'scroll' was dispatched for vertical wheel event.");
+  }, "When 'vertical-scroll' is disabled canceling vertical 'wheel' " +
+     "does not block vertical scrolling."); */
+
+  // Test that when 'vertical-scroll' is disabled, horizontal scorll can be
+  // blocked by canceling 'wheel' event.
+  promise_test(async(testInstance) => {
+    setFeatureState(iframeElement(), "vertical-scroll", "'none'");
+    await loadUrlInIframe(iframeElement(), url);
+
+    window.scrollTo(0, 0);
+    let count = scroll_event_count;
+    await inject_input("right");
+    await waitInTest(testInstance);
+    assert_equals(
+      scroll_event_count,
+      count,
+      "'scroll' was dispatched for blocked horizontal wheel event.");
+  }, "When 'vertical-scroll' is disabled canceling vertical 'wheel' " +
+     "does not block vertical scrolling.");
+
+
+</script>
